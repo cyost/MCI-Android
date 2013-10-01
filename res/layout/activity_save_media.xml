@@ -1,0 +1,60 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SaveMediaActivity" >
+
+    <TextView
+        android:id="@+id/txtMediaType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:text="Media" />
+    
+    <EditText 
+        android:id="@+id/txtTitle"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Media Title"
+        />
+    
+    <EditText 
+        android:id="@+id/txtDescription"
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:lines="5"
+        android:hint="Media Description"
+        />
+    
+    <EditText 
+        android:id="@+id/deviceName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="iOS Phone"
+        />
+	
+    <Button 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Share Media"
+        android:onClick="btnShareMediaClick"
+        />
+    
+    <ImageView 
+        android:id="@+id/saveImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        />
+    
+    <VideoView 
+        android:id="@+id/saveVideoView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+    
+    
+    
+</LinearLayout>

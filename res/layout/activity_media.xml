@@ -1,0 +1,53 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CaptureMediaActivity" >
+
+    <Button 
+        android:id="@+id/btnTakePhoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Take Photo"
+        android:onClick="btnTakePhotoClick"
+        />
+    
+    <Button 
+        android:id="@+id/btnRecordVideo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Record Video"
+        android:onClick="btnRecordVideoClick"
+        />
+    
+    <Button 
+        android:id="@+id/btnRecordAudio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Record Audio"
+        android:onClick="btnRecordAudioClick"
+        />
+    
+    <Button 
+        android:id="@+id/btnStopRecord"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Recording"
+        android:visibility="gone"
+        android:onClick="btnStopOnClick"
+        />
+    <ImageView 
+	    android:id="@+id/imageCaptured"
+	    android:layout_width="600dp"
+	    android:layout_height="600dp"
+	    android:contentDescription="Image"
+	    />
+
+    <VideoView 
+        android:id="@+id/videoCaptured"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        
+        />
+</LinearLayout>

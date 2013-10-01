@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.kynetx.mci"
+    android:versionCode="1"
+    android:versionName="1.0.2" >
+
+    <uses-sdk
+        android:minSdkVersion="11"
+        android:targetSdkVersion="17" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-feature android:name="android.hardware.camera" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.kynetx.mci.activities.StartupActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.kynetx.mci.activities.ServiceActivity"
+            android:label="@string/app_name" >
+           <!--  <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter> -->
+        </activity>
+
+        <service
+            android:name="com.kynetx.mci.services.IndexingService"
+            android:enabled="true" >
+            <intent-filter>
+                <action android:name="com.kynetx.mci.services.IndexingService.SERVICE" />
+                <action android:name="com.kynetx.mci.services.IRemoteIndexInterface" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.kynetx.mci.services.MediaCheckService"
+            android:enabled="true" >
+            <intent-filter>
+                <action android:name="com.kynetx.mci.services.MediaCheckService.SERVICE" />
+                <action android:name="com.kynetx.mci.services.IRemoteMediaCheckInterface" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.kynetx.mci.services.AutoStartService"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.kynetx.mci.services.AutoStartService.SERVICE" />
+                <action android:name="com.kynetx.mci.services.IRemoteAutoStartInterface" />
+            </intent-filter>
+        </service>
+        <activity
+            android:name="com.kynetx.mci.activities.CaptureMediaActivity"
+            android:label="@string/title_activity_media" >
+        </activity>
+        <activity
+            android:name="com.kynetx.mci.activities.SaveMediaActivity"
+            android:label="@string/title_activity_save_media" >
+        </activity>
+        <activity
+            android:name="com.kynetx.mci.activities.PlayMediaActivity"
+             android:screenOrientation="portrait" 
+            android:label="@string/title_activity_play_media" >
+        </activity>
+        <activity
+            android:name="com.kynetx.mci.activities.RecordVideoActivity"
+            android:label="@string/title_activity_record_video" >
+        </activity>
+
+        <receiver android:name="com.kynetx.mci.services.AutoStart" >
+            <intent-filter android:priority="1">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>        
+        
+        <receiver android:name="com.kynetx.mci.services.PhotoReceiver" >
+            <intent-filter android:priority="10000" >
+                <action android:name="com.android.camera.NEW_PICTURE" />
+
+                <data android:mimeType="image/*" />
+                <!-- <action android:name="android.intent.action.CAMERA_BUTTON" /> -->
+                <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+                <!-- <data android:mimeType="image/*"/> -->
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="com.kynetx.mci.activities.GetPhotoActivity"
+            android:label="@string/title_activity_get_photo" >
+        </activity>
+    </application>
+
+</manifest>

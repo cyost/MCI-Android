@@ -1,0 +1,78 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ServiceActivity" >
+
+    <Button 
+        android:id="@+id/btnStartService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/start_service"
+        android:onClick="btnStartClick"
+        />
+    <Button 
+        android:id="@+id/btnStopService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/stop_service"
+        android:onClick="btnStopClick"
+        />
+    
+    <Button 
+        android:id="@+id/btnGetInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/get_info"
+        android:onClick="btnGetInfoClick"
+        />
+    
+    <Button
+        android:id="@+id/btnTestHandshake"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Test Handshake"
+        android:onClick="btnTestHandshakeClick"
+        android:visibility="gone"
+        />
+    
+    <Button
+        android:id="@+id/btnGetOAuthCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get AuthCode"
+        android:onClick="btnGetOAuthCodeClick"
+        android:visibility="gone"
+        />
+    
+    <Button
+        android:id="@+id/btnCaptureMedia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Capture Media"
+        android:onClick="btnCaptureMediaClick"
+        />
+    
+    <Button 
+        android:id="@+id/btnGetPhotoList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get Photos"
+        android:onClick="btnGetPhotosClick"
+        />
+    
+    <ScrollView 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+    <TextView
+        android:id="@+id/txtInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+     />
+    </ScrollView>
+    
+    
+
+</LinearLayout>
