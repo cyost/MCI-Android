@@ -1,6 +1,7 @@
 package com.kynetx.mci.activities;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -41,6 +42,7 @@ import android.os.Environment;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -167,7 +169,7 @@ public class SaveMediaActivity extends Activity {
 	}
 	
 	
-	
+	//TODO: make sure this activity is no longer used.
 	private class ShareMediaTask extends AsyncTask<String, Integer, String>{
 
 		@Override
@@ -175,7 +177,12 @@ public class SaveMediaActivity extends Activity {
 			
 			String mediaTitle = txtTitle.getText().toString();
 			String description = txtDescription.getText().toString();
-			UploadMediaIndex.uploadMedia(mediaType, guid, mediaPath, mediaTitle, description);
+			Bitmap bm = BitmapFactory.decodeFile(mediaPath);
+			ByteArrayOutputStream bo = new ByteArrayOutputStream();
+			bm.compress(Bitmap.CompressFormat.JPEG, 10, bo	);
+			byte[] bytes = bo.toByteArray();
+			String thumb = Base64.encodeToString(bytes, Base64.DEFAULT);
+			UploadMediaIndex.uploadMedia(mediaType, guid, mediaPath, mediaTitle, description, thumb);
 			/*String sMediaType = "";
 			String mediaUrl= "";
 			String ipAdress = HttpUtils.getIPAddress(true);

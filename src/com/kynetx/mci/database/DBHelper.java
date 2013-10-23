@@ -13,7 +13,7 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 
 	private static final String TAG = "DB-INDEXING";
-	public static final String DATABASE_NAME = "mobile_cloud";
+	public static final String DATABASE_NAME = "mobile_cloud_index.db";
 	public static final int VERSION = 1;
 	
 	public DBHelper(Context context, String name, CursorFactory factory, int version) {

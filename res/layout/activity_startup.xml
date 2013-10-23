@@ -14,6 +14,25 @@
         android:textStyle="bold"
         android:layout_marginLeft="5dp"
          />
+    
+    <TextView 
+        android:id="@+id/txtViewSelecIndex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/select_index"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="5dp"
+        />
+    
+    <Spinner 
+        android:id="@+id/spnSelectIndex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"      
+        android:prompt="@string/select_index"
+        
+        />
 
     <TextView 
         android:id="@+id/txtViewSelecDevice"

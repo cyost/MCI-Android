@@ -21,8 +21,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.util.InetAddressUtils;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -36,8 +39,11 @@ import com.kynetx.mci.config.Config;
 import com.kynetx.mci.config.Constants;
 import com.kynetx.mci.database.AuthTokenTable;
 import com.kynetx.mci.models.AuthToken;
+import com.kynetx.mci.models.Device;
 import com.kynetx.mci.models.MediaIndex;
 import com.kynetx.mci.network.utils.HttpUtils;
+import com.kynetx.mci.utils.GetUploadedMediaIndexes;
+import com.kynetx.mci.utils.ReadDeviceIdFile;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -48,24 +54,34 @@ import android.content.Intent;
 import android.location.Criteria;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.os.FileObserver;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 public class IndexingService extends Service {
 
 	private static final int HTTP_NOTIFY = 0x2001;
 	private static final String DEBUG_TAG = "MOBILE_CLOUD-SERVICE";
     public static final String EXTRA_UPDATE_RATE = "update-rate";
+    public static final String EXTRA_DEVICE_CHANNEL_ID = "extra-device-id";
 	private int updateRate = 5000; //every 5 seconds
+    //private int updateRate = 60000; //every 5 seconds
     public static final String MCI_SERVICE = "com.kynetx.mci.services.IndexingService.SERVICE";
     //TODO: put in a config file or class
     public static final String GET_MEDIA_LIST_URL = "https://cs.kobj.net/sky/cloud/a169x727/mciListMedia";
     public static final String GET_MEDIA_PLAY_LIST_URL = "https://cs.kobj.net/sky/cloud/a169x727/mciMediaPlayList";
     public static final String HEADER_KOBJ = "Kobj-Session";
     public static final String HOST = "cs.kobj.net";
+    
+    //TODO: move to config 
+    public static final String FILE_PATH_ROOT = "mci_media";
+	public static final String FILE_PATH_IMAGE = "mci_image";
+	public static final String FILE_PATH_VIDEO = "mci_video";
+	public static final String FILE_PATH_MUSIC = "mci_music";
     
     private NotificationManager notifier = null;
     //private String ipAddress;
@@ -79,6 +95,8 @@ public class IndexingService extends Service {
     String authToken = "";
     private String getJson = "";
     Intent startIntent;
+    PhotoReceiver photoReceiver;
+    private Device device;
     
     @Override 
     public void onCreate()
@@ -86,7 +104,7 @@ public class IndexingService extends Service {
     	super.onCreate();
     	Log.d(DEBUG_TAG, "Creating service");
     	notifier = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-    	
+    	photoReceiver = new PhotoReceiver();
     }
     
     @Override
@@ -98,24 +116,38 @@ public class IndexingService extends Service {
         }
         startIntent = intent;
         doServiceStart(intent, startId);
-        startObserver();
-       
-        return Service.START_REDELIVER_INTENT;
+        //startObserver();
+       //startDeleteObserver();
+        
+        //return Service.START_REDELIVER_INTENT;
+        return Service.START_STICKY;
     }
 
-    private void startObserver()
+   
+    private void startDeleteObserver()
     {
-    	FileObserver observer = new FileObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()) 
+    	/**
+    	 * TODO: the mediaIndexes are not populated, and on start we delete all files so need
+    	 * to keep track of when autostart is done.
+    	 */
+    	FileObserver observer = new FileObserver(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + FILE_PATH_ROOT + "/" + FILE_PATH_IMAGE) 
 		{
 			
 			@Override
 			public void onEvent(int event, String file) {
 				// TODO Auto-generated method stub
-				String fileSaved;
-				 if(event == FileObserver.CREATE && !file.equals(".probe")){ // check if its a "create" and not equal to .probe because thats created every time camera is launched
-		                Log.d(DEBUG_TAG, "File created [" + MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString() + file + "]");
-		                fileSaved = "New photo Saved: " + file;
-		            }
+					Log.e(DEBUG_TAG, "Trying 1 File deleted [" + file + "]");
+					// check if its a "create" and not equal to .probe because thats created every time camera is launched
+					 if(event == FileObserver.DELETE )
+					 {
+						 Log.e(DEBUG_TAG, "Trying 2 File deleted [" + file + "]");
+						 if(Config.startDone == true)
+							{
+								Log.e(DEBUG_TAG, "File deleted [" + file + "]");
+								removeDeletedMedia(file);
+							 }	
+					 }
+					 
 			}
 		};
 		observer.startWatching();
@@ -178,6 +210,12 @@ public class IndexingService extends Service {
 		//stop = false;
     	checkForNewMediaTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
+    
+    private void removeDeletedMedia(String file)
+    {
+    	new RemoveDeletedMediaTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, file);
+    	startDeleteObserver();
+    }
     
     @Override
     public void onDestroy()
@@ -298,7 +336,13 @@ public class IndexingService extends Service {
 			//boolean found = false;
 			while(stop == false){
 				Log.d(DEBUG_TAG, "Checking server: " + i++);
+				if(Config.deviceId == null)
+				{
+					device = loadDevice();
+					Config.deviceId= device.getChannelId();
+				}
 				if(Config.deviceId != null)
+				//if(device.getChannelId() != null)
 				{
 					json = checkForMedia(client);
 				}
@@ -313,6 +357,13 @@ public class IndexingService extends Service {
 			//stop = true;
 			
 			return json;
+		}
+		
+		private Device loadDevice()
+		{
+			ReadDeviceIdFile deviceFile = new ReadDeviceIdFile();
+			Device device = deviceFile.getDevice();
+			return device;
 		}
 		
 		private String checkForMedia(HttpClient client){
@@ -385,6 +436,7 @@ public class IndexingService extends Service {
 		@Override
 		protected void onPostExecute(String json)
 		{
+			
 			playMedia();
 		}
 		
@@ -408,10 +460,12 @@ public class IndexingService extends Service {
 						//Log.e(DEBUG_TAG, media.mediaURL);
 						mediaIndexes.add(media);
 					}
+					Log.e(DEBUG_TAG, "Play Media: " + json);
 					playMedia();
 				}catch(JSONException e)
 				{
-					Log.e(DEBUG_TAG, "error parsing json: " + e.getMessage());
+					Log.e(DEBUG_TAG, "error parsing json: " + e.getMessage()
+							+ " - json: " + json);
 				}
 			}
 		}
@@ -441,6 +495,59 @@ public class IndexingService extends Service {
 		
 	}
 	
+	private class RemoveDeletedMediaTask extends AsyncTask<String, Void, Void>
+	{
+
+		@Override
+		protected Void doInBackground(String... params) {
+			String file = params[0];
+			GetUploadedMediaIndexes get = new GetUploadedMediaIndexes();
+			List<MediaIndex> indexes = get.getMediaIndexes();
+			for (MediaIndex mi : indexes) {
+				if(mi.mediaURL.contains(file))
+				{
+					removeMedia(mi.mediaGUID);
+				}
+			}
+			return null;
+		} 
+		 
+		private void removeMedia(String guid)
+		{
+			String removeUrl = "https://cs.kobj.net/sky/event/"+ Config.deviceId +"/"+ Config.EID +"/cloudos/mciRemoveMedia/?_rids=a169x727";
+			
+			HttpClient client = new DefaultHttpClient();
+			HttpContext context= new BasicHttpContext();
+			HttpResponse response = null;
+			HttpPost request = null;
+			
+			StringBuilder json = new StringBuilder();
+			
+			json.append("{\"mediaGUID\": \"" + guid + "\"");
+			json.append("}");
+			
+			try 
+			{
+				
+				request = new HttpPost(removeUrl);
+				
+				request.addHeader("Kobj-Session", Config.deviceId);
+				request.addHeader("Host", "cs.kobj.net");
+				request.addHeader("content-type", "application/json");//change to form encoded mime type: application/x-www-form-urlencoded
+				
+				request.setEntity(new ByteArrayEntity(json.toString().getBytes())); //google Request bin
+				response = client.execute(request);
+				response.getEntity().consumeContent();
+				
+			} catch (Exception e) {
+				  Log.e(DEBUG_TAG, e.getMessage());
+			}finally{
+				
+			}
+			
+		}
+		
+	}
 	
 
 }

@@ -27,42 +27,45 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int TextViewExplain=0x7f09001d;
-        public static final int action_settings=0x7f090023;
+        public static final int TextViewExplain=0x7f090020;
+        public static final int action_settings=0x7f090026;
         public static final int btnCaptureMedia=0x7f090005;
         public static final int btnGetInfo=0x7f090002;
         public static final int btnGetOAuthCode=0x7f090004;
         public static final int btnGetPhotoList=0x7f090006;
-        public static final int btnPlayDone=0x7f090010;
+        public static final int btnPlayDone=0x7f09000f;
         public static final int btnRecordAudio=0x7f09000a;
         public static final int btnRecordVideo=0x7f090009;
-        public static final int btnSelect=0x7f09001b;
+        public static final int btnSelect=0x7f09001e;
         public static final int btnStartService=0x7f090000;
         public static final int btnStopRecord=0x7f09000b;
         public static final int btnStopService=0x7f090001;
         public static final int btnTakePhoto=0x7f090008;
-        public static final int btnTest=0x7f09001c;
+        public static final int btnTest=0x7f09001f;
         public static final int btnTestHandshake=0x7f090003;
-        public static final int deviceName=0x7f090015;
-        public static final int frame=0x7f090022;
+        public static final int deviceName=0x7f090016;
+        public static final int frame=0x7f090025;
         public static final int imageCaptured=0x7f09000c;
-        public static final int imageViewPlayer=0x7f090011;
-        public static final int play=0x7f090020;
-        public static final int record=0x7f09001e;
-        public static final int saveImageView=0x7f090016;
-        public static final int saveVideoView=0x7f090017;
-        public static final int spnSelectDevice=0x7f09001a;
-        public static final int startupLayout=0x7f090018;
-        public static final int stop=0x7f09001f;
-        public static final int stop_playback=0x7f090021;
-        public static final int txtDescription=0x7f090014;
+        public static final int imageViewPlayer=0x7f090012;
+        public static final int play=0x7f090023;
+        public static final int prog=0x7f090010;
+        public static final int record=0x7f090021;
+        public static final int saveImageView=0x7f090017;
+        public static final int saveVideoView=0x7f090018;
+        public static final int spnSelectDevice=0x7f09001d;
+        public static final int spnSelectIndex=0x7f09001b;
+        public static final int startupLayout=0x7f090019;
+        public static final int stop=0x7f090022;
+        public static final int stop_playback=0x7f090024;
+        public static final int txtDescription=0x7f090015;
         public static final int txtInfo=0x7f090007;
-        public static final int txtMediaType=0x7f090012;
+        public static final int txtMediaType=0x7f090013;
         public static final int txtPlayMediaTitle=0x7f09000e;
-        public static final int txtTitle=0x7f090013;
-        public static final int txtViewSelecDevice=0x7f090019;
+        public static final int txtTitle=0x7f090014;
+        public static final int txtViewSelecDevice=0x7f09001c;
+        public static final int txtViewSelecIndex=0x7f09001a;
         public static final int videoCaptured=0x7f09000d;
-        public static final int videoViewPlayer=0x7f09000f;
+        public static final int videoViewPlayer=0x7f090011;
     }
     public static final class layout {
         public static final int activity_get_photo=0x7f030000;
@@ -88,16 +91,17 @@ public final class R {
         public static final int app_name=0x7f050000;
         public static final int get_info=0x7f050004;
         public static final int hello_world=0x7f050007;
-        public static final int select_device=0x7f05000c;
+        public static final int select_device=0x7f05000d;
+        public static final int select_index=0x7f050008;
         public static final int start_service=0x7f050002;
         public static final int stop_service=0x7f050003;
-        public static final int title_activity_get_photo=0x7f05000d;
+        public static final int title_activity_get_photo=0x7f05000e;
         public static final int title_activity_media=0x7f050005;
-        public static final int title_activity_play_media=0x7f050008;
-        public static final int title_activity_record_video=0x7f050009;
+        public static final int title_activity_play_media=0x7f050009;
+        public static final int title_activity_record_video=0x7f05000a;
         public static final int title_activity_save_media=0x7f050006;
-        public static final int title_activity_startup=0x7f05000a;
-        public static final int welcome=0x7f05000b;
+        public static final int title_activity_startup=0x7f05000b;
+        public static final int welcome=0x7f05000c;
     }
     public static final class style {
         /** 

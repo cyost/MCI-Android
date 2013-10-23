@@ -64,12 +64,14 @@ public class AutoStartService extends Service {
 	private static final String DEBUG_TAG = "MCI-AUTOSTART-SERVICE";
 	public static final String MCI_SERVICE = "com.kynetx.mci.services.AutoStartService.SERVICE";
 	private static final String dir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + Constants.MCI_MEDIA_PATH;
+	//public static final String EXTRA_DEVICE_CHANNEL_ID = "extra_channel_id";
 	
 	Intent startIntent;
 	private NotificationManager notifier = null;
 	boolean stop = false;
 	
 	GetMediaListTask getMediaListTask;
+	String deviceChannelId;
 	
 	@Override 
     public void onCreate()
@@ -87,6 +89,7 @@ public class AutoStartService extends Service {
         if (flags != 0) {
             Log.w(DEBUG_TAG, "Redelivered or retrying service start: " + flags);
         }
+        deviceChannelId = intent.getStringExtra(Constants.EXTRA_DEVICE_CHANNEL_ID);
         startIntent = intent;
         doServiceStart(intent, startId);
         
@@ -150,6 +153,28 @@ public class AutoStartService extends Service {
         super.onDestroy();
     }
     
+    public void stopService()
+    {
+    	Log.e(DEBUG_TAG, "Stopping autostart service");
+    	startFileObserverService();
+    	startVideoObserverService();
+    	stopSelf();
+    }
+    
+    private void startFileObserverService()
+	{
+		Intent fileService = new Intent(FileModificationService.MCI_SERVICE);
+		fileService.putExtra(Constants.EXTRA_DEVICE_CHANNEL_ID, deviceChannelId);
+		startService(fileService);
+	}
+    
+    private void startVideoObserverService()
+    {
+    	Log.e(DEBUG_TAG, "Starting Video Service");
+    	Intent videoService = new Intent(VideoCaptureService.MCI_SERVICE);
+    	videoService.putExtra(Constants.EXTRA_DEVICE_CHANNEL_ID, deviceChannelId);
+    	startService(videoService);
+    }
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
@@ -214,7 +239,8 @@ public class AutoStartService extends Service {
 			{				
 				request = new HttpGet(getMediaListUrl);
 				
-				request.addHeader("Kobj-Session", Config.deviceId);
+				//request.addHeader("Kobj-Session", Config.deviceId);
+				request.addHeader("Kobj-Session", deviceChannelId);
 				request.addHeader("content-type", "application/json");
 				
 				response = client.execute(request, context );
@@ -313,7 +339,8 @@ public class AutoStartService extends Service {
 		@Override
 		protected Void doInBackground(List<String>... guids) {
 			
-			String removeUrl = "https://cs.kobj.net/sky/event/"+ Config.deviceId +"/"+ Config.EID +"/cloudos/mciRemoveMedia/?_rids=a169x727";
+			//String removeUrl = "https://cs.kobj.net/sky/event/"+ Config.deviceId +"/"+ Config.EID +"/cloudos/mciRemoveMedia/?_rids=a169x727";
+			String removeUrl = "https://cs.kobj.net/sky/event/"+ deviceChannelId +"/"+ Config.EID +"/cloudos/mciRemoveMedia/?_rids=a169x727";
 			
 			HttpClient client = new DefaultHttpClient();
 			HttpContext context= new BasicHttpContext();
@@ -333,7 +360,8 @@ public class AutoStartService extends Service {
 					
 					request = new HttpPost(removeUrl);
 					
-					request.addHeader("Kobj-Session", Config.deviceId);
+					//request.addHeader("Kobj-Session", Config.deviceId);
+					request.addHeader("Kobj-Session", deviceChannelId);
 					request.addHeader("Host", "cs.kobj.net");
 					request.addHeader("content-type", "application/json");//change to form encoded mime type: application/x-www-form-urlencoded
 					
@@ -356,8 +384,30 @@ public class AutoStartService extends Service {
 		private boolean deleteFiles()
 		{
 			File path = new File(dir + "/" + Constants.MCI_PHOTO_FOLDER);
+			
+			File directory = new File(path.toString());
+			if(!directory.exists())
+			{
+				directory.mkdirs();
+			}
+			
 			File[] files = path.listFiles();
 			boolean success = true;
+			for(int i=0;i<files.length; i++)
+			{
+				files[i].delete();
+			}
+			
+			path = new File(dir + "/" + Constants.MCI_PHOTO_FOLDER);
+			
+			directory = new File(path.toString());
+			if(!directory.exists())
+			{
+				directory.mkdirs();
+			}
+			
+			files = path.listFiles();
+			
 			for(int i=0;i<files.length; i++)
 			{
 				files[i].delete();
@@ -394,6 +444,22 @@ public class AutoStartService extends Service {
 				}
 			}
 			
+			int foundVideos = 0;
+			for(int i=1; i<=files.length; i++)
+			{
+				String video = files[idx - i].toString();
+				
+				if(video.endsWith(".mp4")){
+					Log.i("video to copy ", video);
+					CopyFileUtility.copyFile(video, null, MediaType.Video);
+					recentFiles.add(files[idx - i]);
+					foundVideos++;
+					if(foundVideos >= Config.MEDIA_UPLOAD_LIMIT)
+					{
+						break;
+					}
+				}
+			}
 			
 			return recentFiles;
 		}
@@ -401,6 +467,8 @@ public class AutoStartService extends Service {
 		protected void onPostExecute(Void nothing)
 		{
 			Log.d(DEBUG_TAG, "Indexes Updated.");
+			Config.startDone = true;
+			stopService();
 			//uploadNewMediaIndexes();
 		}
 		

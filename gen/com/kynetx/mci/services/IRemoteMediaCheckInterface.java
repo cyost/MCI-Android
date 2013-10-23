@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: /Users/pbs/android/workspace/MobileCloudIndex/src/com/kynetx/mci/services/IRemoteMediaCheckInterface.aidl
+ * Original file: /Users/pbs/android/workspace/MobileCloudIndex/MCI Android/src/com/kynetx/mci/services/IRemoteMediaCheckInterface.aidl
  */
 package com.kynetx.mci.services;
 public interface IRemoteMediaCheckInterface extends android.os.IInterface

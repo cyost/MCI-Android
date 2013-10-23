@@ -16,7 +16,7 @@ public class Config {
 	public static final String HEADER_KOBJ = "Kobj-Session";
 	public static final String HOST = "cs.kobj.net";
 	
-	public static final String GUID_TO_GET_DEVICE_LIST = "A2E3CC48-09EE-11E3-A275-7C5C1257AE36"; //Dev
+	//public static final String GUID_TO_GET_DEVICE_LIST = "A2E3CC48-09EE-11E3-A275-7C5C1257AE36"; //Dev
 	//public static final String GUID_TO_GET_DEVICE_LIST = "1FCEA696-230E-11E3-A7AA-D6A7E71C24E1"; //For Neustar Client
 	public static final int MEDIA_UPLOAD_LIMIT = 5;
 	public static final String EID = "51236986";

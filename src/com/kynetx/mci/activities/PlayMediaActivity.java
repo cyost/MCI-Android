@@ -1,14 +1,15 @@
 package com.kynetx.mci.activities;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -25,26 +26,29 @@ import com.kynetx.mci.config.Config;
 import com.kynetx.mci.config.Constants;
 import com.kynetx.mci.models.MediaIndex;
 import com.kynetx.mci.services.IndexingService;
+import com.kynetx.mci.services.MCIVideoCaptureObserver;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnErrorListener;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -53,6 +57,7 @@ public class PlayMediaActivity extends Activity {
 
 	private static final String DEBUG_TAG = "play-media";
 	VideoView videoPlayer;
+	ProgressBar progressBar;
 	ImageView imageViewer;
 	MediaIndex media;
 	MediaPlayer mediaPlayer;
@@ -60,6 +65,8 @@ public class PlayMediaActivity extends Activity {
 	Button btnDone;
 	MediaController mc;
 	boolean removeDone = false;
+	String videoFile;
+	TextView txtTitle = null;
 	
 	Bitmap photo = null;
 	
@@ -70,6 +77,7 @@ public class PlayMediaActivity extends Activity {
 		
 		btnDone = (Button)findViewById(R.id.btnPlayDone);
 		btnDone.setVisibility(Button.GONE);
+		
 		mc = new MediaController(this);
 		Intent intent = this.getIntent();
 		String mediaTitle = intent.getStringExtra("media-title");
@@ -77,12 +85,14 @@ public class PlayMediaActivity extends Activity {
 		String mediaType = intent.getStringExtra("media-type");
 		guid = intent.getStringExtra(Constants.EXTRA_GUID);
 		Log.d(DEBUG_TAG, "guid: " + guid);
-		TextView txtTitle = (TextView)findViewById(R.id.txtPlayMediaTitle);
+		txtTitle = (TextView)findViewById(R.id.txtPlayMediaTitle);
 		txtTitle.setText(mediaTitle);
 		
 		videoPlayer = (VideoView)findViewById(R.id.videoViewPlayer);
 		videoPlayer.setVisibility(View.GONE);
 		
+		progressBar = (ProgressBar)findViewById(R.id.prog);
+		progressBar.setVisibility(View.GONE);
 		
 		imageViewer = (ImageView)findViewById(R.id.imageViewPlayer);
 		imageViewer.setVisibility(View.GONE);
@@ -93,19 +103,10 @@ public class PlayMediaActivity extends Activity {
 		{
 			
 			videoPlayer.setVisibility(View.VISIBLE);
-			videoPlayer.setOnCompletionListener(new OnCompletionListener() 
-			{
-
-				@Override
-				public void onCompletion(MediaPlayer arg0) {
-					
-					removeDone = true;
-					btnDone.setVisibility(Button.VISIBLE);
-					
-				}
-			    
-			});
-			playVideo(intent, url);
+			progressBar.setVisibility(View.VISIBLE);
+			txtTitle.setText("Buffering video...");
+			new DownloadVideoTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+			
 		}else if(mediaType.equalsIgnoreCase("photo"))
 		{
 			imageViewer.setVisibility(ImageView.VISIBLE);
@@ -146,34 +147,51 @@ public class PlayMediaActivity extends Activity {
 		startService(service);
 		Toast.makeText(this, "Service started...:", Toast.LENGTH_SHORT).show();
 	}
+	
 	private void playVideo(Intent intent, String url)
 	{
-
-		new PlayVideoTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
-		/*
-		getWindow().setFormat(PixelFormat.TRANSLUCENT);
-		
-		int mediaType = intent.getIntExtra(Constants.EXTRA_MEDIA_TYPE, 1);
-		
-		Uri uri = Uri.parse(url);
+		btnDone.setVisibility(View.VISIBLE);
+		txtTitle.setText("Playing Video...");
+		videoFile = url;
 		
 		try{
-			
-			MediaController mc = new MediaController(this);
-			
+			getWindow().setFormat(PixelFormat.TRANSLUCENT);
+			MediaController mc = new MediaController(PlayMediaActivity.this);
+			//mc.setAnchorView(videoPlayer);
+			mc.setMediaPlayer(videoPlayer);
 	        videoPlayer.setMediaController(mc);
-			videoPlayer.setVideoURI(uri);			
-			videoPlayer.requestFocus();
+			//videoPlayer.setVideoURI(uri);			
+			//videoPlayer.setVideoPath(Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/20131020_100338.mp4");
+	        //videoPlayer.setVideoPath(Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.MCI_MEDIA_PATH + "test.mp4");
+	        videoPlayer.setVideoPath(url);
+			//videoPlayer.requestFocus();
 			//videoPlayer.postInvalidateDelayed(1000);
 			
-			videoPlayer.start();
+			videoPlayer.setOnPreparedListener(new OnPreparedListener() {
+				@Override
+				public void onPrepared(MediaPlayer mp) {
+					// TODO Auto-generated method stub
+					progressBar.setVisibility(View.GONE);
+					videoPlayer.start();
+				}
+			});
 			
-			
-		
+			videoPlayer.setOnErrorListener(new OnErrorListener(){
+	            @Override
+	            public boolean onError(MediaPlayer mp, int what, int extra) {
+	            // TODO Auto-generated method stub
+		            Toast.makeText(getBaseContext(), "Error occured", Toast.LENGTH_LONG).show();
+		            progressBar.setVisibility(View.GONE);
+		            return false;
+	            }
+	        });
+
+					
 		}catch(Exception e)
 		{
 			Log.e("Play Media", e.getMessage());
-		}*/
+			restartService();
+		}
 		
 	}
 	
@@ -214,6 +232,12 @@ public class PlayMediaActivity extends Activity {
 		{
 			photo.recycle();
 			photo = null;
+		}
+		
+		if(videoFile != null)
+		{
+			File file = new File(videoFile);
+			file.delete();
 		}
 		removeMedia();
 		Config.mediaPlaying = false;
@@ -275,7 +299,6 @@ public class PlayMediaActivity extends Activity {
 			//Bitmap photo = null;
 			try
 			{
-				//photo = DownloadImage(url[0]);
 				DownloadImage(url[0]);
 			
 			}catch(Exception e)
@@ -345,47 +368,97 @@ public class PlayMediaActivity extends Activity {
 		}
 	}
 	
-	private class PlayVideoTask extends AsyncTask<String, Integer, Boolean>{
+	//test this
+	
+	private class DownloadVideoTask extends AsyncTask<String, Integer, String>{
 
 		@Override
-		protected Boolean doInBackground(String... url) {
-			// TODO Auto-generated method stub
-			
-			boolean rtnValue = true;
-
-			getWindow().setFormat(PixelFormat.TRANSLUCENT);
-			
-			//int mediaType = intent.getIntExtra(Constants.EXTRA_MEDIA_TYPE, 1);
-			
-			Uri uri = Uri.parse(url[0]);
-			
+		protected String doInBackground(String... url) {
+			String file = null;
 			try{
-				
-				MediaController mc = new MediaController(getBaseContext());
-				
-		        videoPlayer.setMediaController(mc);
-				videoPlayer.setVideoURI(uri);			
-				videoPlayer.requestFocus();
-				//videoPlayer.postInvalidateDelayed(1000);
-				
-				videoPlayer.start();
-				
-				
-			
+				file = DownloadVideo(url[0]);
 			}catch(Exception e)
 			{
-				Log.e("Play Media", e.getMessage());
+				Log.e(DEBUG_TAG, "Error downloading video: " + e.getMessage());
 			}
-			return null;
+			return file;
 		}
 		
+		private InputStream OpenHttpConnection(String urlString) throws IOException {
+	        InputStream in = null;
+	        int response = -1;
+
+	        URL url = new URL(urlString);
+	        URLConnection conn = url.openConnection();
+
+	        if (!(conn instanceof HttpURLConnection))
+	            throw new IOException("Not an HTTP connection");
+
+	        try {
+	            HttpURLConnection httpConn = (HttpURLConnection) conn;
+	            httpConn.setAllowUserInteraction(false);
+	            httpConn.setInstanceFollowRedirects(true);
+	            httpConn.setRequestMethod("GET");
+	            httpConn.connect();
+	            response = httpConn.getResponseCode();
+	            if (response == HttpURLConnection.HTTP_OK) {
+	                in = httpConn.getInputStream();
+	            }
+	        } catch (Exception ex) {
+	            throw new IOException("Error connecting");
+	        }
+	        return in;
+	    }
+
+	    //private Bitmap DownloadImage(String URL) {
+		private String DownloadVideo(String URL) {
+	        //Bitmap bitmap = null;
+	        BitmapFactory.Options options = new BitmapFactory.Options();
+	        options.inSampleSize = 4;
+	        InputStream in = null;
+	        File videoDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + Constants.MCI_MEDIA_PATH );
+	        File mciVideoFile = null;
+	        try {
+	            in = OpenHttpConnection(URL);
+	            options.inJustDecodeBounds =false;
+	            
+	            BufferedInputStream inStream = new BufferedInputStream(in, 1024 * 5);
+	            
+	            if(!videoDir.exists())
+	            {
+	            	videoDir.mkdir();
+	            }
+	            mciVideoFile = new File(videoDir + "/mciVideo.mp4");
+	            FileOutputStream outStream = new FileOutputStream(mciVideoFile);
+	            byte[] buff = new byte[5 * 1024];
+	            int len;
+	            
+	            while((len = inStream.read(buff)) != -1){
+	            	outStream.write(buff, 0, len);
+	            }
+	            outStream.flush();
+	            outStream.close();
+	            inStream.close();
+	            in.close();
+	            
+	        } catch (IOException e1) {
+	            // TODO Auto-generated catch block
+	        	restartService();
+	            e1.printStackTrace();
+	        }
+	        //return videoDir + "/test.mp4";
+	        return mciVideoFile.getAbsolutePath();
+	    }
+		
 		@Override
-		protected void onPostExecute(Boolean value)
+		protected void onPostExecute(String file)
 		{
-			btnDone.setVisibility(View.VISIBLE);
+			/*btnDone.setVisibility(View.VISIBLE);
 			videoPlayer.setVisibility(VideoView.GONE);
 			Toast.makeText(getBaseContext(), "Video Done", Toast.LENGTH_SHORT).show();
-			removeMedia();
+			removeMedia();*/
+			playVideo(null, file);
+			//removeMedia();
 		}
 	}
 

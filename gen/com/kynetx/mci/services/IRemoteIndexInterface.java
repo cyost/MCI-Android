@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: /Users/pbs/android/workspace/MobileCloudIndex/src/com/kynetx/mci/services/IRemoteIndexInterface.aidl
+ * Original file: /Users/pbs/android/workspace/MobileCloudIndex/MCI Android/src/com/kynetx/mci/services/IRemoteIndexInterface.aidl
  */
 package com.kynetx.mci.services;
 public interface IRemoteIndexInterface extends android.os.IInterface

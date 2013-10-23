@@ -10,13 +10,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
      />
-    
-    <VideoView 
-        android:id="@+id/videoViewPlayer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
-    
     <Button 
         android:id="@+id/btnPlayDone"
         android:layout_width="match_parent"
@@ -24,7 +17,18 @@
         android:text="Close"
         android:onClick="btnDoneOnClick"
         />
-    
+    <ProgressBar
+        android:id="@+id/prog"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center"/>
+    <VideoView 
+        android:id="@+id/videoViewPlayer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        />
+        
     <ImageView 
         android:id="@+id/imageViewPlayer"
         android:layout_width="match_parent"
