@@ -57,20 +57,12 @@ public class UploadMediaIndex {
 		}
 		
 		
-		//String postUrl = "https://cs.kobj.net/sky/event/9F99C8F8-16A5-11E3-A3F6-561A3BC979B4/51236986/web/submit/?_rids=a169x727&element=mciAddMedia.post";
+		
 		String postUrl = "https://cs.kobj.net/sky/event/" + Config.deviceId +"/51236986/web/submit/?_rids=a169x727&element=mciAddMedia.post";
 		StringBuilder json = new StringBuilder();
-		//Bitmap bm = BitmapFactory.decodeFile(mediaUrl.toString());
-		//ByteArrayOutputStream bo = new ByteArrayOutputStream();
-		//bm.compress(Bitmap.CompressFormat.JPEG, 100, bo	);
-		//byte[] bytes = bo.toByteArray();
-		//String thumb = Base64.encodeToString(bytes, Base64.DEFAULT); 
-		//json.append("{\"mediaCoverArt\": \"https://s3.amazonaws.com/k-mycloud/a169x672/A709A4EA-F897-11E2-9738-89683970C0C4.img?q=88528\",");
+		
 		json.append("{\"mediaCoverArt\": \"data:image/png;base64," + thumb +"\", ");
-		//TODO: use base 64 for thumbnail
-		//json.append("{\"mediaCoverArt\":"  + "\"" + mediaUrl +"\",");
-		//json.append("{\"mediaCoverArt\":"  + "\"" + thumb +"\",");
-		//json.append("{\"mediaCoverArt\":"  + "\"" + thumb +"\",");
+		
 		json.append("\"mediaGUID\": \"" + guid + "\",");
 		json.append("\"mediaType\": \"" + sMediaType + "\",");
 		json.append("\"mediaURL\":" + "\"" + mediaUrl +"\","); 
@@ -78,8 +70,7 @@ public class UploadMediaIndex {
 		json.append("\"mediaDescription\": \"" + description + "\"");
 		json.append("}");
 		 
-		//Log.e("json", json.toString());
-		//HttpClient client = HttpUtils.getNewHttpClient();
+		
 		HttpClient client = new DefaultHttpClient();
 		HttpContext context= new BasicHttpContext();
 		HttpResponse response = null;
@@ -89,15 +80,15 @@ public class UploadMediaIndex {
 		{
 			
 			request = new HttpPost(postUrl);
-			//request.addHeader("Kobj-Session", "9F99C8F8-16A5-11E3-A3F6-561A3BC979B4");
+			
 			request.addHeader("Kobj-Session", Config.deviceId);
 			request.addHeader("Host", "cs.kobj.net");
-			//request.addHeader("content-type", "application/json;application/x-www-form-urlencoded;charset=UTF-8");//change to form encoded mime type: application/x-www-form-urlencoded
+			
 			request.addHeader("content-type", "application/json");//change to form encoded mime type: application/x-www-form-urlencoded
 			
 			request.setEntity(new ByteArrayEntity(json.toString().getBytes())); //google Request bin
 			response = client.execute(request);
-			//Log.d(DEBUG_TAG, response.getStatusLine().toString() + " - " + response.getStatusLine().getReasonPhrase());
+			
 			Header[] headers = response.getAllHeaders();
 			HttpParams rParams = response.getParams();
 			
@@ -136,10 +127,8 @@ public class UploadMediaIndex {
 			fo.flush();
 			fo.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

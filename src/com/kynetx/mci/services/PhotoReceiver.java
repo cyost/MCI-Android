@@ -34,7 +34,6 @@ public class PhotoReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO Auto-generated method stub
 		Log.e("picture", "got picture");
 		String uri = intent.getData().toString();
 		String data = intent.getDataString();
@@ -94,7 +93,6 @@ public class PhotoReceiver extends BroadcastReceiver {
 
 		@Override
 		protected Void doInBackground(String... params) {
-			// TODO Auto-generated method stub
 			StringBuilder list = new StringBuilder();
 			list.append("Photos: ");
 			String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/Camera";
@@ -117,8 +115,7 @@ public class PhotoReceiver extends BroadcastReceiver {
 			Collections.sort(sortedList);
 			int size = sortedList.size();
 			Log.e("photo", " first: " + sortedList.get(size - 1));
-			//int idx = files.length;
-			//String photo = sortedList.get(size - 1);
+			
 			String photo = null;
 			boolean found = false;
 			int idx = 1;

@@ -16,13 +16,11 @@ public final class MediaIndex implements Parcelable {
 
 		@Override
 		public MediaIndex createFromParcel(Parcel source) {
-			// TODO Auto-generated method stub
 			return new MediaIndex(source);
 		}
 
 		@Override
 		public MediaIndex[] newArray(int size) {
-			// TODO Auto-generated method stub
 			return new MediaIndex[size];
 		}
 		
@@ -40,13 +38,11 @@ public final class MediaIndex implements Parcelable {
 	
 	@Override
 	public int describeContents() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		// TODO Auto-generated method stub
 		dest.writeString(index);
 		dest.writeString(mediaURL);
 		dest.writeString(mediaDescription);

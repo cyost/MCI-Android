@@ -89,8 +89,7 @@ public class MCIFileObserver extends FileObserver{
 		if(mediaIndexes.size() > 0)
 		{
 			List<String> indexGuids = new ArrayList<String>();
-			//TODO: need to change for multiple files
-			//String fileToDelete = deletedFiles.get(0);
+
 			String fileToDelete;
 			for(int i=0; i<deletedFiles.size(); i++){
 				fileToDelete = deletedFiles.get(i);

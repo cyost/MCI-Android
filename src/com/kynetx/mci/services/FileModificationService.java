@@ -104,7 +104,6 @@ public class FileModificationService extends Service{
 		
 		@Override
 		public void stopService() throws RemoteException {
-			// TODO Auto-generated method stub
 			
 		}
 	};
@@ -121,7 +120,6 @@ public class FileModificationService extends Service{
 	
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return remoteFileModificationInterface;
 	}
 

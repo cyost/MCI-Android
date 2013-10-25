@@ -102,14 +102,12 @@ public class VideoCaptureService extends Service {
 		
 		@Override
 		public void stopService() throws RemoteException {
-			// TODO Auto-generated method stub
 			
 		}
 	};
 	
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return remoteFileModificationInterface;
 	}
 	

@@ -126,7 +126,6 @@ private static final String DEBUG_TAG = "INDEXING-SERVICE";
 		try {
 			remoteInterface.stopService();
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			Log.e(DEBUG_TAG, "Error stopping service: " + e.getMessage());
 		}
 		txtInfo.setText("Stopping Service...");
@@ -234,14 +233,12 @@ private static final String DEBUG_TAG = "INDEXING-SERVICE";
 	
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {
-		// TODO Auto-generated method stub
 		remoteInterface = IRemoteIndexInterface.Stub.asInterface(service);
         Log.d(DEBUG_TAG, "Interface bound.");
 	}
 
 	@Override
 	public void onServiceDisconnected(ComponentName name) {
-		// TODO Auto-generated method stub
 		remoteInterface = null;
         /*Button getLastLoc = (Button) findViewById(R.id.get_last);
         getLastLoc.setVisibility(View.GONE);*/
@@ -322,124 +319,7 @@ private static final String DEBUG_TAG = "INDEXING-SERVICE";
      * Temp code to test HttpUrlConnection
      * 
      */
-    /*
-    private class HandshakeTask extends AsyncTask<String, Integer, String>{
-
-		@Override
-		protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
-			try {
-				  URL url = new URL(Config.APP_URL);
-				  HttpURLConnection con = (HttpURLConnection) url.openConnection();
-				  
-				  readStream(con.getInputStream());
-				} catch (Exception e) {
-					  e.printStackTrace();
-				}
-			
-			return null;
-		}
-		
-		private void readStream(InputStream in) {
-			  BufferedReader reader = null;
-			  try {
-			    reader = new BufferedReader(new InputStreamReader(in));
-			    String line = "";
-			    while ((line = reader.readLine()) != null) {
-			      Log.d("WEB-CALL", line);
-			    }
-			  } catch (IOException e) {
-			    e.printStackTrace();
-			  } finally {
-			    if (reader != null) {
-			      try {
-			        reader.close();
-			      } catch (IOException e) {
-			        e.printStackTrace();
-			        }
-			    }
-			  }
-			} 
-    	
-		@Override
-		protected void onPostExecute(String json)
-		{
-			txtInfo.setText("Done testing");
-		}
-    }
     
-    private class HandshakeTask2 extends AsyncTask<String, Integer, String>{
-
-		@Override
-		protected String doInBackground(String... params) {
-			
-			HttpClient client = HttpUtils.getNewHttpClient();
-			
-			if(Build.VERSION.SDK_INT < 14)
-			{
-				HttpUtils.workAroundReverseDnsBugInHoneycombAndEarlier(client);
-			}
-			HttpGet get = new HttpGet(Config.APP_URL);
-			HttpPost post = new HttpPost();
-			HttpResponse response = null;
-			HttpUriRequest request = null;
-			String result = null;
-			try 
-			{
-				
-				request = new HttpGet(Config.APP_URL);
-				//request = new HttpPost(Config.APP_URL);
-				//request.addHeader("Host", "cs.kobj.net");
-				//request.addHeader("Cache-Control", "max-age=3600, proxy-revalidate");
-				//response = client.execute(get);
-				response = client.execute(request);
-				Log.d(DEBUG_TAG, response.getStatusLine().toString() + " - " + response.getStatusLine().getReasonPhrase());
-				Header[] headers = response.getAllHeaders();
-				HttpParams rParams = response.getParams();
-				//Log.d(DEBUG_TAG, response.get)
-				for (Header header : headers) {
-					Log.d(DEBUG_TAG, header.getName() + ": " + header.getValue());
-				}
-				HttpEntity entity = response.getEntity();
-				InputStream is = entity.getContent();
-				readStream(is);
-			} catch (Exception e) {
-				  Log.e(DEBUG_TAG, e.getMessage());
-			}finally{
-				
-			}
-			
-			return null;
-		}
-		
-		private void readStream(InputStream in) {
-			  BufferedReader reader = null;
-			  try {
-			    reader = new BufferedReader(new InputStreamReader(in));
-			    String line = "";
-			    while ((line = reader.readLine()) != null) {
-			      Log.d(DEBUG_TAG, line);
-			    }
-			  } catch (IOException e) {
-			    e.printStackTrace();
-			  } finally {
-			    if (reader != null) {
-			      try {
-			        reader.close();
-			      } catch (IOException e) {
-			        e.printStackTrace();
-			        }
-			    }
-			  }
-			} 
-    	
-		@Override
-		protected void onPostExecute(String json)
-		{
-			txtInfo.setText("Done testing");
-		}
-    }
-    */
     private class CopyPhotoTask extends AsyncTask<List<String>, Integer, Integer>
     {
     	

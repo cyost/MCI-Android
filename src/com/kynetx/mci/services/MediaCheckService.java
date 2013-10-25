@@ -41,7 +41,6 @@ public class MediaCheckService extends Service
     
 	@Override
 	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
 		return remoteMediaCheckInterface;
 	}
 	
@@ -110,7 +109,6 @@ public class MediaCheckService extends Service
 
 			@Override
 			public boolean doWeHaveMedia() throws RemoteException {
-				// TODO Auto-generated method stub
 				return false;
 			}
 

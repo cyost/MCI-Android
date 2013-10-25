@@ -177,7 +177,6 @@ public class AutoStartService extends Service {
     }
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return remoteAutoStartInterface;
 	}
 	
@@ -196,7 +195,6 @@ public class AutoStartService extends Service {
 		
 		@Override
 		public void stopService() throws RemoteException {
-			// TODO Auto-generated method stub
 			
 		}
 	};
@@ -473,71 +471,5 @@ public class AutoStartService extends Service {
 		}
 		
 	}
-	/*
-	private class UpdateMediaIndexTask extends AsyncTask<Void, Integer, Void>
-	{
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			
-			Log.d(DEBUG_TAG, "Updating Media");
-			
-			//get list of files in media directories
-			File path = new File(dir + "/" + Constants.MCI_PHOTO_FOLDER);
-			File[] files = path.listFiles();
-			boolean deleted = deleteFiles(files);
-			List<File> newFiles = getMostRecentFiles();
-			for (File file : newFiles) {
-				int start = file.toString().indexOf(Constants.MCI_MEDIA_PATH);
-				String filePath = file.getAbsolutePath().substring(start);
-				//TODO: need file name
-				UploadMediaIndex.uploadMedia(MediaType.Photo, UUID.randomUUID().toString(), filePath, Config.deviceName, "Re-Indexed");
-			}
-						
-			return null;
-		}
-		
-		private boolean deleteFiles(File[] files)
-		{
-			Log.d(DEBUG_TAG, "Deleting Media");
-			boolean success = true;
-			for(int i=0;i<files.length; i++)
-			{
-				files[i].delete();
-			}
-			return success;
-		}
-		
-		private List<File> getMostRecentFiles()
-		{
-			List<File> recentFiles = new ArrayList<File>();
-			Log.d(DEBUG_TAG, "Getting most recent Media");
-			//StringBuilder list = new StringBuilder();
-			//list.append("Photos: ");
-			String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/Camera";
-			File dir = new File(filePath);
-			File[] files = dir.listFiles();
-			
-			
-			int idx = files.length;
-			//TODO: Test with video
-			for(int i=1; i<= Config.MEDIA_UPLOAD_LIMIT; i++)
-			{
-				String photo = files[idx - i].toString();
-				Log.i("photo to copy ", photo);
-				CopyFileUtility.copyFile(photo, null, MediaType.Photo);
-				recentFiles.add(files[idx - i]);
-			}
-			
-			
-			return recentFiles;
-		}
-		
-		@Override
-		protected void onPostExecute(Void nothing)
-		{
-			//putActivityInBack();
-		}
-		
-	}*/
+	
 }

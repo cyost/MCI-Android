@@ -297,7 +297,6 @@ public class StartupActivity extends Activity {
 
 		@Override
 		public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-			// TODO Auto-generated method stub
 			Toast.makeText(parent.getContext(), "Selected: " + parent.getItemAtPosition(pos).toString(), Toast.LENGTH_SHORT).show();
 			MCIIndex index = (MCIIndex)parent.getItemAtPosition(pos);
 			loadDevices(index);
@@ -305,7 +304,6 @@ public class StartupActivity extends Activity {
 
 		@Override
 		public void onNothingSelected(AdapterView<?> arg0) {
-			// TODO Auto-generated method stub
 			
 		}
 		
@@ -693,45 +691,7 @@ public class StartupActivity extends Activity {
 		}
     }
 	
-	/*
 	
-	private class UpdateMediaIndexTask extends AsyncTask<Void, Integer, Void>
-	{
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			
-			//get list of files in media directories
-			File path = new File(Constants.MCI_MEDIA_PATH_ABSOLUTE + "/" + Constants.MCI_PHOTO_FOLDER);
-			File[] files = path.listFiles();
-			boolean deleted = deleteFiles(files);
-			List<File> newFiles = getMostRecentFiles();
-			String filePath = "";
-			for (File file : files) {
-				int start = file.toString().indexOf(Constants.MCI_MEDIA_PATH);
-				filePath = file.getAbsolutePath().substring(start);
-				//TODO: need file name
-				Bitmap bm = BitmapFactory.decodeFile(filePath);
-				ByteArrayOutputStream bo = new ByteArrayOutputStream();
-				bm.compress(Bitmap.CompressFormat.JPEG, 10, bo	);
-				byte[] bytes = bo.toByteArray();
-				String thumb = Base64.encodeToString(bytes, Base64.DEFAULT);
-				UploadMediaIndex.uploadMedia(MediaType.Photo, UUID.randomUUID().toString(), filePath, Config.deviceName, "Re-Indexed", thumb);
-			}
-						
-			return null;
-		}
-		
-		
-		
-		@Override
-		protected void onPostExecute(Void nothing)
-		{
-			Config.startDone = true;
-		}
-		
-	}
-	*/
 	private class GetPhotosTask extends AsyncTask<Void, Integer, Void>
 	{
 

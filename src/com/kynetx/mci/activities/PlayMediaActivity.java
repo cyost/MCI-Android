@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.UUID;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -27,6 +28,7 @@ import com.kynetx.mci.config.Constants;
 import com.kynetx.mci.models.MediaIndex;
 import com.kynetx.mci.services.IndexingService;
 import com.kynetx.mci.services.MCIVideoCaptureObserver;
+import com.kynetx.mci.utils.CopyFileUtility.MediaType;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -56,6 +58,7 @@ import android.widget.VideoView;
 public class PlayMediaActivity extends Activity {
 
 	private static final String DEBUG_TAG = "play-media";
+	private enum ErrorType {httpConnection, download, other}
 	VideoView videoPlayer;
 	ProgressBar progressBar;
 	ImageView imageViewer;
@@ -67,7 +70,7 @@ public class PlayMediaActivity extends Activity {
 	boolean removeDone = false;
 	String videoFile;
 	TextView txtTitle = null;
-	
+	String videoUrl;
 	Bitmap photo = null;
 	
 	@Override
@@ -105,6 +108,7 @@ public class PlayMediaActivity extends Activity {
 			videoPlayer.setVisibility(View.VISIBLE);
 			progressBar.setVisibility(View.VISIBLE);
 			txtTitle.setText("Buffering video...");
+			videoUrl = url;
 			new DownloadVideoTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
 			
 		}else if(mediaType.equalsIgnoreCase("photo"))
@@ -148,6 +152,19 @@ public class PlayMediaActivity extends Activity {
 		Toast.makeText(this, "Service started...:", Toast.LENGTH_SHORT).show();
 	}
 	
+	private void displayVideoError()
+	{
+		txtTitle.setText("There was a problem downloading video. Trying again..");
+		new DownloadVideoTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, videoUrl);
+	}
+	
+	private void httpConnectionError(String message, MediaType mediaType)
+	{
+		btnDone.setVisibility(View.VISIBLE);
+		progressBar.setVisibility(View.GONE);
+		txtTitle.setText(message + " - Click on the close button.");
+	}
+	
 	private void playVideo(Intent intent, String url)
 	{
 		btnDone.setVisibility(View.VISIBLE);
@@ -170,7 +187,6 @@ public class PlayMediaActivity extends Activity {
 			videoPlayer.setOnPreparedListener(new OnPreparedListener() {
 				@Override
 				public void onPrepared(MediaPlayer mp) {
-					// TODO Auto-generated method stub
 					progressBar.setVisibility(View.GONE);
 					videoPlayer.start();
 				}
@@ -179,8 +195,9 @@ public class PlayMediaActivity extends Activity {
 			videoPlayer.setOnErrorListener(new OnErrorListener(){
 	            @Override
 	            public boolean onError(MediaPlayer mp, int what, int extra) {
-	            // TODO Auto-generated method stub
 		            Toast.makeText(getBaseContext(), "Error occured", Toast.LENGTH_LONG).show();
+		            Log.e(DEBUG_TAG, "Error on playing video");
+		            
 		            progressBar.setVisibility(View.GONE);
 		            return false;
 	            }
@@ -238,6 +255,7 @@ public class PlayMediaActivity extends Activity {
 		{
 			File file = new File(videoFile);
 			file.delete();
+			videoPlayer = null;
 		}
 		removeMedia();
 		Config.mediaPlaying = false;
@@ -249,8 +267,7 @@ public class PlayMediaActivity extends Activity {
 	}
 	
 	private void removeMedia()
-	{
-		
+	{		
 		new RemoveMediaTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, guid);
 		
 	}
@@ -303,7 +320,7 @@ public class PlayMediaActivity extends Activity {
 			
 			}catch(Exception e)
 			{
-				Log.e(DEBUG_TAG, "Error: " + e.getMessage());
+				Log.e(DEBUG_TAG, "Error on device: " + Config.deviceName + " - " + e.getMessage());
 			}
 			//return photo;
 			return null;
@@ -372,6 +389,8 @@ public class PlayMediaActivity extends Activity {
 	
 	private class DownloadVideoTask extends AsyncTask<String, Integer, String>{
 
+		String errorMessage;
+		private ErrorType errorType;
 		@Override
 		protected String doInBackground(String... url) {
 			String file = null;
@@ -379,7 +398,7 @@ public class PlayMediaActivity extends Activity {
 				file = DownloadVideo(url[0]);
 			}catch(Exception e)
 			{
-				Log.e(DEBUG_TAG, "Error downloading video: " + e.getMessage());
+				Log.e(DEBUG_TAG, "Error downloading video: " + Config.deviceName + " - " + e.getMessage());
 			}
 			return file;
 		}
@@ -399,13 +418,17 @@ public class PlayMediaActivity extends Activity {
 	            httpConn.setAllowUserInteraction(false);
 	            httpConn.setInstanceFollowRedirects(true);
 	            httpConn.setRequestMethod("GET");
+	            httpConn.setConnectTimeout(10000);
 	            httpConn.connect();
 	            response = httpConn.getResponseCode();
 	            if (response == HttpURLConnection.HTTP_OK) {
 	                in = httpConn.getInputStream();
 	            }
 	        } catch (Exception ex) {
-	            throw new IOException("Error connecting");
+	            //httpConnectionError("Could not open connection.", MediaType.Video);
+	        	errorMessage = "Could not open connection";
+	        	errorType = ErrorType.httpConnection;
+	        	return null;
 	        }
 	        return in;
 	    }
@@ -420,27 +443,34 @@ public class PlayMediaActivity extends Activity {
 	        File mciVideoFile = null;
 	        try {
 	            in = OpenHttpConnection(URL);
-	            options.inJustDecodeBounds =false;
-	            
-	            BufferedInputStream inStream = new BufferedInputStream(in, 1024 * 5);
-	            
-	            if(!videoDir.exists())
+	            if(in != null)
 	            {
-	            	videoDir.mkdir();
+		            options.inJustDecodeBounds =false;
+		            
+		            BufferedInputStream inStream = new BufferedInputStream(in, 1024 * 5);
+		            
+		            if(!videoDir.exists())
+		            {
+		            	videoDir.mkdir();
+		            }
+		            //mciVideoFile = new File(videoDir + "/mciVideo.mp4");
+		            String uuid = UUID.randomUUID().toString();
+		            mciVideoFile = new File(videoDir + "/" +  uuid + ".mp4");
+		            FileOutputStream outStream = new FileOutputStream(mciVideoFile);
+		            byte[] buff = new byte[5 * 1024];
+		            int len;
+		            
+		            while((len = inStream.read(buff)) != -1){
+		            	outStream.write(buff, 0, len);
+		            }
+		            outStream.flush();
+		            outStream.close();
+		            inStream.close();
+		            in.close();
+	            }else
+	            {
+	            	return null;
 	            }
-	            mciVideoFile = new File(videoDir + "/mciVideo.mp4");
-	            FileOutputStream outStream = new FileOutputStream(mciVideoFile);
-	            byte[] buff = new byte[5 * 1024];
-	            int len;
-	            
-	            while((len = inStream.read(buff)) != -1){
-	            	outStream.write(buff, 0, len);
-	            }
-	            outStream.flush();
-	            outStream.close();
-	            inStream.close();
-	            in.close();
-	            
 	        } catch (IOException e1) {
 	            // TODO Auto-generated catch block
 	        	restartService();
@@ -457,7 +487,20 @@ public class PlayMediaActivity extends Activity {
 			videoPlayer.setVisibility(VideoView.GONE);
 			Toast.makeText(getBaseContext(), "Video Done", Toast.LENGTH_SHORT).show();
 			removeMedia();*/
-			playVideo(null, file);
+			if(file == null){
+				switch(errorType)
+				{
+					case httpConnection:
+						httpConnectionError(errorMessage, MediaType.Video);
+						break;
+					default:
+						displayVideoError();
+				}
+				
+			}else
+			{
+				playVideo(null, file);
+			}
 			//removeMedia();
 		}
 	}

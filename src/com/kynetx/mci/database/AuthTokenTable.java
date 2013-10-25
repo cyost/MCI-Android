@@ -32,7 +32,6 @@ public class AuthTokenTable extends MCIBaseTable {
 
 	@Override
 	public void createTable() {
-		// TODO Auto-generated method stub
 		
 		StringBuilder sql = new StringBuilder();
 		sql.append("CREATE Table " + TABLE_NAME );
@@ -103,13 +102,11 @@ public class AuthTokenTable extends MCIBaseTable {
 
 	@Override
 	public int update(MCIBaseModel data) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public int delete(MCIBaseModel data) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 

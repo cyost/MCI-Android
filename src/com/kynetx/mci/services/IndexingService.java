@@ -77,7 +77,7 @@ public class IndexingService extends Service {
     public static final String HEADER_KOBJ = "Kobj-Session";
     public static final String HOST = "cs.kobj.net";
     
-    //TODO: move to config 
+    //TODO: move to config  or constants
     public static final String FILE_PATH_ROOT = "mci_media";
 	public static final String FILE_PATH_IMAGE = "mci_image";
 	public static final String FILE_PATH_VIDEO = "mci_video";
@@ -126,16 +126,12 @@ public class IndexingService extends Service {
    
     private void startDeleteObserver()
     {
-    	/**
-    	 * TODO: the mediaIndexes are not populated, and on start we delete all files so need
-    	 * to keep track of when autostart is done.
-    	 */
+    	
     	FileObserver observer = new FileObserver(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + FILE_PATH_ROOT + "/" + FILE_PATH_IMAGE) 
 		{
 			
 			@Override
 			public void onEvent(int event, String file) {
-				// TODO Auto-generated method stub
 					Log.e(DEBUG_TAG, "Trying 1 File deleted [" + file + "]");
 					// check if its a "create" and not equal to .probe because thats created every time camera is launched
 					 if(event == FileObserver.DELETE )
@@ -241,7 +237,6 @@ public class IndexingService extends Service {
     
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return remoteIndexInterface;
 	}
 	
@@ -272,7 +267,6 @@ public class IndexingService extends Service {
 
 		@Override
 		public MediaIndex getMediaIndex() throws RemoteException {
-			// TODO Auto-generated method stub
 			MediaIndex mediaIndex = new MediaIndex();
 			mediaIndex.index = UUID.randomUUID().toString();
 			return mediaIndex;
@@ -280,7 +274,6 @@ public class IndexingService extends Service {
 
 		@Override
 		public void stopService() throws RemoteException {
-			// TODO Auto-generated method stub
 			stop = true;
 		}
 		
@@ -464,7 +457,7 @@ public class IndexingService extends Service {
 					playMedia();
 				}catch(JSONException e)
 				{
-					Log.e(DEBUG_TAG, "error parsing json: " + e.getMessage()
+					Log.e(DEBUG_TAG, "error parsing json: device: " + device.getName() + " - " + e.getMessage()
 							+ " - json: " + json);
 				}
 			}

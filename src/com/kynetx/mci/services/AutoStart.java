@@ -56,7 +56,6 @@ public class AutoStart extends BroadcastReceiver{
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO Auto-generated method stub
 		Log.e(DEBUG_TAG, "In AutoStart");
 		
 		String deviceId = "";

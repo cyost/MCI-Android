@@ -183,106 +183,10 @@ public class SaveMediaActivity extends Activity {
 			byte[] bytes = bo.toByteArray();
 			String thumb = Base64.encodeToString(bytes, Base64.DEFAULT);
 			UploadMediaIndex.uploadMedia(mediaType, guid, mediaPath, mediaTitle, description, thumb);
-			/*String sMediaType = "";
-			String mediaUrl= "";
-			String ipAdress = HttpUtils.getIPAddress(true);
-
-			switch(mediaType)
-			{
-				case Constants.MEDIA_TYPE_PHOTO:
-					sMediaType = "Photo";
-					//saveImage(guid.toString());
-					mediaUrl = "http://" + ipAdress + ":8080/" + mediaPath;
-					break;
-				case Constants.MEDIA_TYPE_VIDEO:
-					sMediaType = "Video";
-					mediaUrl = "http://" + ipAdress + ":8080/" + mediaPath;
-					break;
-				case Constants.MEDIA_TYPE_MUSIC:
-					sMediaType="Music";
-					mediaUrl = "http://" + ipAdress + ":8080/" + mediaPath;
-					break;
-			}
 			
-			
-			String mediaTitle = txtTitle.getText().toString();
-			String description = txtDescription.getText().toString();
-			
-			//String postUrl = "https://cs.kobj.net/sky/event/9F99C8F8-16A5-11E3-A3F6-561A3BC979B4/51236986/web/submit/?_rids=a169x727&element=mciAddMedia.post";
-			String postUrl = "https://cs.kobj.net/sky/event/" + Config.deviceId +"/51236986/web/submit/?_rids=a169x727&element=mciAddMedia.post";
-			StringBuilder json = new StringBuilder();
-			
-			json.append("{\"mediaCoverArt\": \"https://s3.amazonaws.com/k-mycloud/a169x672/A709A4EA-F897-11E2-9738-89683970C0C4.img?q=88528\",");
-			json.append("\"mediaGUID\": \"" + guid + "\",");
-			json.append("\"mediaType\": \"" + sMediaType + "\",");
-			json.append("\"mediaURL\":" + "\"" + mediaUrl +"\","); 
-			json.append("\"mediaTitle\": \"" +mediaTitle + "\",");
-			json.append("\"mediaDescription\": \"" + description + "\"");
-			json.append("}");
-			 
-			//HttpClient client = HttpUtils.getNewHttpClient();
-			HttpClient client = new DefaultHttpClient();
-			HttpContext context= new BasicHttpContext();
-			HttpResponse response = null;
-			HttpPost request = null;
-			
-			try 
-			{
-				
-				request = new HttpPost(postUrl);
-				//request.addHeader("Kobj-Session", "9F99C8F8-16A5-11E3-A3F6-561A3BC979B4");
-				request.addHeader("Kobj-Session", Config.deviceId);
-				request.addHeader("Host", "cs.kobj.net");
-				request.addHeader("content-type", "application/json");//change to form encoded mime type: application/x-www-form-urlencoded
-				
-				request.setEntity(new ByteArrayEntity(json.toString().getBytes())); //google Request bin
-				response = client.execute(request);
-				//Log.d(DEBUG_TAG, response.getStatusLine().toString() + " - " + response.getStatusLine().getReasonPhrase());
-				Header[] headers = response.getAllHeaders();
-				HttpParams rParams = response.getParams();
-				
-				for (Header header : headers) {
-					Log.d(DEBUG_TAG, header.getName() + ": " + header.getValue());
-				}
-				HttpEntity entity = response.getEntity();
-				InputStream is = entity.getContent();
-				readStream(is);
-			} catch (Exception e) {
-				  Log.e(DEBUG_TAG, e.getMessage());
-			}finally{
-				
-			}
-			*/
 			return "Done";
 			
 		}
 		
-		
-		
-		/*private void readStream(InputStream in) 
-		{
-			BufferedReader reader = null;
-			StringBuilder json = new StringBuilder();
-			try 
-			{
-			    reader = new BufferedReader(new InputStreamReader(in));
-			    String line = "";
-			    while ((line = reader.readLine()) != null) {
-			    	Log.d(DEBUG_TAG, line);
-			    	json.append(line);
-			    }	    
-			    //getJson = json.toString();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}*/
 	}
 }
